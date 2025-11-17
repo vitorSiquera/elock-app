@@ -1,10 +1,9 @@
 // src/api/types.ts
 
 export interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
-  // ajustamos de acordo com schema depois
 }
 
 export interface ApiLoginResponse {
@@ -16,17 +15,24 @@ export interface LoginResponse {
   token: string;
 }
 
-export type DoorLockStatus = 'locked' | 'unlocked';
-
 export interface DoorLock {
-  id: string;
+  id: number;
   name: string;
-  location: string;
-  status: DoorLockStatus;
+  localization: string;
+  status: string;
 }
 
 export interface DoorLockUser {
-  id: string;
-  userId: string;
-  doorLockId: string;
+  id: number;
+  userId: number;
+  doorLockId: number;
+  paper: string;
+  status: string;
+  sharedBy?: number | null;
+  startsAt?: string | null;
+  expiresAt?: string | null;
+
+  // se a API incluir relações no retorno (include: [User, DoorLock])
+  user?: User;
+  doorLock?: DoorLock;
 }

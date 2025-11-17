@@ -9,15 +9,21 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { getDoorLocks } from '../../api/doorLocks';
 import { DoorLock } from '../../api/types';
 import { useAuth } from '../../context/AuthContext';
 
 export const LocksListScreen: React.FC = () => {
   const { user, signOut } = useAuth();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [locks, setLocks] = useState<DoorLock[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -72,13 +78,14 @@ export const LocksListScreen: React.FC = () => {
       <TouchableOpacity
         activeOpacity={0.9}
         style={styles.cardContainer}
-        // futuramente: navegar para detalhe da fechadura
-        onPress={() => {
-          Alert.alert(
-            item.name,
-            `Local: ${item.location}\nStatus: ${isLocked ? 'Trancada' : 'Destrancada'}`,
-          );
-        }}
+        onPress={() =>
+          navigation.navigate('LockDetail', {
+            id: item.id,
+            name: item.name,
+            localization: item.localization,
+            status: item.status,
+          })
+        }
       >
         <LinearGradient
           colors={isLocked ? ['#1F2937', '#4B5563'] : ['#22C55E', '#16A34A']}
@@ -115,7 +122,7 @@ export const LocksListScreen: React.FC = () => {
                 size={18}
                 color="#E5E7EB"
               />
-              <Text style={styles.locationText}>{item.location}</Text>
+              <Text style={styles.locationText}>{item.localization}</Text>
             </View>
           </View>
         </LinearGradient>
@@ -131,13 +138,20 @@ export const LocksListScreen: React.FC = () => {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>
-              Olá, {user?.name ?? 'usuário'}
-            </Text>
-            <Text style={styles.headerSubtitle}>
-              Suas fechaduras conectadas
-            </Text>
+          <View style={styles.headerLeft}>
+            <Image
+              source={require('../../../assets/elock mono 1.png')}
+              style={styles.headerLogo}
+              resizeMode="contain"
+            />
+            <View>
+              <Text style={styles.greeting}>
+                Olá, {user?.name ?? 'usuário'}
+              </Text>
+              <Text style={styles.headerSubtitle}>
+                Suas fechaduras conectadas
+              </Text>
+            </View>
           </View>
 
           <TouchableOpacity
@@ -152,13 +166,19 @@ export const LocksListScreen: React.FC = () => {
         <View style={styles.contentCard}>
           <View style={styles.contentHeader}>
             <Text style={styles.contentTitle}>Minhas fechaduras</Text>
-            <TouchableOpacity onPress={refreshLocks}>
-              <Ionicons
-                name="refresh-outline"
-                size={20}
-                color="#6B21A8"
-              />
-            </TouchableOpacity>
+
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <TouchableOpacity
+                style={{ marginRight: 12 }}
+                onPress={() => navigation.navigate('NewLock')}
+              >
+                <Ionicons name="add-circle-outline" size={22} color="#6B21A8" />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={refreshLocks}>
+                <Ionicons name="refresh-outline" size={20} color="#6B21A8" />
+              </TouchableOpacity>
+            </View>
           </View>
 
           {loading ? (
@@ -181,7 +201,7 @@ export const LocksListScreen: React.FC = () => {
           ) : (
             <FlatList
               data={locks}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id.toString()}
               renderItem={renderLockItem}
               contentContainerStyle={{ paddingVertical: 8 }}
               refreshControl={
@@ -214,6 +234,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
   },
   greeting: {
     fontSize: 18,

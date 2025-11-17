@@ -10,6 +10,7 @@ import {
   Platform,
   StyleSheet,
   Alert,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -56,9 +57,11 @@ export const LoginScreen: React.FC = () => {
         <View style={styles.container}>
           {/* Header / Branding */}
           <View style={styles.header}>
-            <View style={styles.iconCircle}>
-              <Ionicons name="lock-closed-outline" size={32} color="#fff" />
-            </View>
+            <Image
+              source={require('../../../assets/elock mono 1.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Elock</Text>
             <Text style={styles.subtitle}>
               Controle suas fechaduras inteligentes com segurança e rapidez.
@@ -207,13 +210,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
-  iconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
-    alignItems: 'center',
-    justifyContent: 'center',
+  logo: {
+    width: 80,
+    height: 80,
     marginBottom: 12,
   },
   title: {

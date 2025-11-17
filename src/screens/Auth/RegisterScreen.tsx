@@ -10,6 +10,7 @@ import {
   Platform,
   StyleSheet,
   Alert,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
@@ -96,9 +97,11 @@ export const RegisterScreen: React.FC = () => {
             </TouchableOpacity>
 
             <View style={styles.headerCenter}>
-              <View style={styles.iconCircle}>
-                <Ionicons name="person-add-outline" size={28} color="#fff" />
-              </View>
+              <Image
+                source={require('../../../assets/elock mono 1.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
               <Text style={styles.title}>Criar conta</Text>
               <Text style={styles.subtitle}>
                 Registre-se para controlar suas fechaduras inteligentes.
@@ -273,13 +276,9 @@ const styles = StyleSheet.create({
   headerCenter: {
     alignItems: 'center',
   },
-  iconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
-    alignItems: 'center',
-    justifyContent: 'center',
+  logo: {
+    width: 70,
+    height: 70,
     marginBottom: 10,
   },
   title: {
