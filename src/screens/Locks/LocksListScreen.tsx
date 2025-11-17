@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { getDoorLocks } from '../../api/doorLocks';
@@ -56,9 +56,11 @@ export const LocksListScreen: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadLocks();
-  }, [loadLocks]);
+  useFocusEffect(
+    useCallback(() => {
+      loadLocks();
+    }, [loadLocks]),
+  );
 
   function handleLogout() {
     Alert.alert('Sair', 'Deseja realmente sair?', [
