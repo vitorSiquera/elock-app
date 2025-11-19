@@ -16,6 +16,8 @@ import {
   getDoorLock,
   updateDoorLockStatus,
 } from '../../api/doorLocks';
+import { connectSocket, joinLock, leaveLock, onDoorLockUpdated, offDoorLockUpdated } from '../../api/socket';
+import { useAuth } from '../../context/AuthContext';
 import type { DoorLock } from '../../api/types';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 
@@ -51,9 +53,43 @@ export const LockDetailScreen: React.FC = () => {
     }
   }, [id, name, localization, status]);
 
+  const { token } = useAuth();
+
   useEffect(() => {
     loadLock();
   }, [loadLock]);
+
+  useEffect(() => {
+    if (!token) return;
+    // ensure socket connected
+    try {
+      connectSocket(token);
+    } catch (err) {
+      console.warn('Erro ao conectar socket', err);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!lock) return;
+
+    // join lock room
+    joinLock(lock.id);
+
+    const handleUpdate = (payload: any) => {
+      if (payload?.id === lock.id) {
+        setLock((prev) => ({ ...(prev as DoorLock), status: payload.status }));
+      }
+    };
+
+    onDoorLockUpdated(handleUpdate);
+
+    return () => {
+      offDoorLockUpdated(handleUpdate);
+      try {
+        leaveLock(lock.id);
+      } catch (err) {}
+    };
+  }, [lock]);
 
   async function handleToggleLock() {
     if (!lock) return;

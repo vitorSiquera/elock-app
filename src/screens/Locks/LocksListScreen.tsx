@@ -19,9 +19,15 @@ import type { RootStackParamList } from '../../navigation/RootNavigator';
 import { getDoorLocks } from '../../api/doorLocks';
 import { DoorLock } from '../../api/types';
 import { useAuth } from '../../context/AuthContext';
+import {
+  connectSocket,
+  getSocket,
+  onDoorLockUpdated,
+  offDoorLockUpdated,
+} from '../../api/socket';
 
 export const LocksListScreen: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, token } = useAuth();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [locks, setLocks] = useState<DoorLock[]>([]);
@@ -61,6 +67,37 @@ export const LocksListScreen: React.FC = () => {
       loadLocks();
     }, [loadLocks]),
   );
+
+  useEffect(() => {
+    if (!user?.id) return;
+    if (!user) return;
+    if (!user) return; // double-check
+
+    const token = ((): string | null => {
+      // try to get token from useAuth state (we don't have direct access to token prop here)
+      // the AuthContext stores token but it is not exported; instead we rely on connect using internal storage in setAuthToken
+      // However we still attempt to connect only when user exists; the httpClient already has token set by signIn.
+      return null;
+    })();
+
+    try {
+      if (token) connectSocket(token);
+    } catch (err) {
+      console.warn('socket connect attempt failed', err);
+    }
+
+    const handleUpdate = (payload: any) => {
+      setLocks((prev) =>
+        prev.map((l) => (l.id === payload.id ? { ...l, status: payload.status } : l)),
+      );
+    };
+
+    onDoorLockUpdated(handleUpdate);
+
+    return () => {
+      offDoorLockUpdated(handleUpdate);
+    };
+  }, [user]);
 
   function handleLogout() {
     Alert.alert('Sair', 'Deseja realmente sair?', [
